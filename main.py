@@ -84,6 +84,9 @@ def euro_vanilla_call(S, K, T, r, sigma):
     return call
 
 
+
+
+
 def euro_vanilla_put(S, K, T, r, sigma):
     # S: spot price
     # K: strike price
@@ -142,6 +145,141 @@ def asian_option_arithmetic_put(S0, K, T, r, sigma):
     option_price = np.exp(-r * T) * np.mean(payoffs)
     return option_price
 
+def opcao_compra_americana(S, K, T, r, sigma):
+    S = float(S)
+    K = float(K)
+    T = float(T)
+    r = float(r)
+    sigma = float(sigma)
+
+
+    d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
+    d2 = d1 - sigma * np.sqrt(T)
+    preco = S * norm.cdf(d1) - K * np.exp(-r * T) * norm.cdf(d2)
+    return preco
+
+def opcao_venda_americana(S, K, T, r, sigma):
+    S = float(S)
+    K = float(K)
+    T = float(T)
+    r = float(r)
+    sigma = float(sigma)
+
+
+    d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
+    d2 = d1 - sigma * np.sqrt(T)
+    preco = K * np.exp(-r * T) * norm.cdf(-d2) - S * norm.cdf(-d1)
+    return preco
+
+def volatilidade_put(S, K, T, r, vol):
+    """
+    S: preço atual
+    K: preço de exercício
+    T: tempo até a maturidade
+    r: taxa de juros
+    vol: volatilidade do ativo subjacente
+    """
+    S = float(S)
+    K = float(K)
+    T = float(T)
+    r = float(r)
+    vol = float(vol)
+
+
+    d1 = (np.log(S / K) + (r + 0.5 * vol ** 2) * T) / (vol * np.sqrt(T))
+    d2 = d1 - vol * np.sqrt(T)
+
+    put = (K * np.exp(-r * T) * si.norm.cdf(-d2, 0.0, 1.0) - S * si.norm.cdf(-d1, 0.0, 1.0))
+
+    return put
+
+
+def volatilidade_call(S, K, T, r, vol):
+    """
+    S: preço atual
+    K: preço de exercício
+    T: tempo até a maturidade
+    r: taxa de juros
+    vol: volatilidade do ativo subjacente
+    """
+    S = float(S)
+    K = float(K)
+    T = float(T)
+    r = float(r)
+    vol = float(vol)
+
+    d1 = (np.log(S / K) + (r + 0.5 * vol ** 2) * T) / (vol * np.sqrt(T))
+    d2 = d1 - vol * np.sqrt(T)
+
+    call = (S * si.norm.cdf(d1, 0.0, 1.0) - K * np.exp(-r * T) * si.norm.cdf(d2, 0.0, 1.0))
+
+    return call
+
+def cliquet_put(S, K, T, r, sigma, periods):
+    """
+    S: preço atual
+    K: preço de exercício
+    T: tempo até a maturidade
+    r: taxa de juros
+    sigma: volatilidade do ativo subjacente
+    periods: número de períodos de cliquet
+    """
+    S = float(S)
+    K = float(K)
+    T = float(T)
+    r = float(r)
+    sigma = float(sigma)
+    periods = float(periods)
+
+
+    dt = T / periods
+    n = periods
+    p = 0  # acumulador de cliquet
+
+    for i in range(1, n+1):
+        t = i * dt
+        d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * t) / (sigma * np.sqrt(t))
+        d2 = d1 - sigma * np.sqrt(t)
+        p += (K * np.exp(-r * t) * si.norm.cdf(-d2, 0.0, 1.0) - S * si.norm.cdf(-d1, 0.0, 1.0))
+
+    put = p / n
+
+    return put
+
+
+
+def cliquet_call(S, K, T, r, sigma, periods):
+    """
+    S: preço atual
+    K: preço de exercício
+    T: tempo até a maturidade
+    r: taxa de juros
+    sigma: volatilidade do ativo subjacente
+    periods: número de períodos de cliquet
+    """
+    S = float(S)
+    K = float(K)
+    T = float(T)
+    r = float(r)
+    sigma = float(sigma)
+    periods = float(periods)
+
+
+    dt = T / periods
+    n = periods
+    c = 0  # acumulador de cliquet
+
+    for i in range(1, n+1):
+        t = i * dt
+        d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * t) / (sigma * np.sqrt(t))
+        d2 = d1 - sigma * np.sqrt(t)
+        c += (S * si.norm.cdf(d1, 0.0, 1.0) - K * np.exp(-r * t) * si.norm.cdf(d2, 0.0, 1.0))
+
+    call = c / n
+
+    return call
+
+
 
 def calculadora(ativo, preco_exercicio, tipo, p_c, inicio, risk_free, tempo):
     S0, sigma = coletapreco(ativo, inicio)
@@ -167,9 +305,35 @@ def calculadora(ativo, preco_exercicio, tipo, p_c, inicio, risk_free, tempo):
         if p_c == 'p':
             preco = asian_option_arithmetic_put(S0, preco_exercicio, tempo, risk_free, sigma)
             print("O preço da sua opção é: " + str(preco))
+        return preco
+    if tipo == '3':
+        if p_c == 'c':
+            preco = opcao_compra_americana(S0, preco_exercicio, tempo, risk_free, sigma)
+            print("O preço da sua opção americana de compra é: " + str(preco))
+        elif p_c == 'p':
+            preco = opcao_venda_americana(S0, preco_exercicio, tempo, risk_free, sigma)
+            print("O preço da sua opção americana de venda é: " + str(preco))
 
         return preco
+    if tipo == '4':
 
+        if p_c == 'c':
+            preco = cliquet_call(S0, preco_exercicio, tempo, risk_free, sigma, periods=100)
+            print("O preço da sua opção cliquet é: " + str(preco))
+        if p_c == 'p':
+            preco = cliquet_put(S0, preco_exercicio, tempo, risk_free, sigma, periods=100)
+            print("O preço da sua opção cliquet é: " + str(preco))
+        return preco
+
+    if tipo == '5':
+
+        if p_c == 'c':
+            preco = volatilidade_call(S0, preco_exercicio, tempo, risk_free, sigma)
+            print("O preço da sua opção de volatilidade é: " + str(preco))
+        if p_c == 'p':
+            preco = volatilidade_put(S0, preco_exercicio, tempo, risk_free, sigma)
+            print("O preço da sua opção de volatilidade é: " + str(preco))
+        return preco
     return 'tipo de opcao inexistente'
 
 if __name__ == '__main__':

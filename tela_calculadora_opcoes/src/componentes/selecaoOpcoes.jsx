@@ -43,6 +43,17 @@ export default function SelecaoOpcoes({}) {
       if (tab == 0) {//asian option
         tipo_opcao = '2'
       }
+        if (tab == 2) {
+            tipo_opcao = '3'
+        }
+        if (tab == 3) {
+            tipo_opcao = '4'
+        }
+        if (tab == 4) {
+        tipo_opcao = '5'
+        }
+
+
       let url = "http://localhost:8000/calcular?cod_stock="
       url = url + stock
       url = url + "&preco_exercicio=" + preco.toString()
@@ -91,17 +102,24 @@ export default function SelecaoOpcoes({}) {
             <Tabs sx={{width: '100%'}} value={tab} onChange={handleChange}>
                 <Tab label="Opções Asiaticas" />
                 <Tab label="Opções Europeias" />
+                <Tab label="Opções Americana" />
+                <Tab label="Opções Cliquet" />
+                <Tab label="Opções Volatilidade" />
             </Tabs>
             </Box>
-
+            <Box sx={{
+                padding: 2,
+                mt: 1
+                }}>
             <TextField label="Stock Name"
             value={stock}
                 onChange={(evt) => {
                     setStock(evt.target.value)
                 }}
             variant="filled" sx={{
-                mt: 2,
-                mb: 1
+
+                mb: 1,
+                mr: 1
                 }} />
 
             <TextField
@@ -111,9 +129,14 @@ export default function SelecaoOpcoes({}) {
                     setPreco(evt.target.value)
                 }}
             variant="filled" sx={{
-                mb: 1
+                mb: 1,
+                ml: 1
                 }} />
+            </Box>
 
+            <Box sx={{
+
+                }}>
             <TextField
             label="Risk Free"
             value={riskFree}
@@ -121,7 +144,8 @@ export default function SelecaoOpcoes({}) {
                     setRiskFree(evt.target.value)
                 }}
             type="number" variant="filled" sx={{
-                mb: 1
+                mb: 1,
+                mr: 1
                 }} />
 
             <TextField
@@ -131,8 +155,10 @@ export default function SelecaoOpcoes({}) {
                     setPeriodos(evt.target.value)
                 }}
                 type="number" variant="filled" sx={{
-                mb: 1
+                mb: 1,
+                ml:1
                 }} />
+            </Box>
 
 
             <LocalizationProvider dateAdapter={AdapterDayjs}>
