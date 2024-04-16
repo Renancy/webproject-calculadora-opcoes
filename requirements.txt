@@ -1,0 +1,9 @@
+pandas
+matplotlib
+numpy
+yfinance
+scipy
+sympy
+cython
+fastapi
+uvicorn
